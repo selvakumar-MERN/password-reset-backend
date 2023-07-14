@@ -49,7 +49,59 @@ const emailExist = async (req, res) => {
 
     }
 }
+//login
+
+const loginSchema= joi.object({
+    email:joi.string().min(3).required().email(),
+    password:joi.string().min(6).required(),
+})
+const emaillogin= async(req,res)=>{
+  const User =  await user.findOne({email:req.body.email})
+     if(!User){
+           return res.status(400).send("Invalid email")
+     }
+    
+     const validPassword= await bcrypt.compare(req.body.password,User.password);
+     if(!validPassword)
+     return res.status(400).send("Invalid password");
+
+     try{
+        const{error}= await loginSchema.validateAsync(req.body);
+        if(error){
+            res.status(400).send(error)
+        }
+        else{
+               const token=jwt.sign({email:User.email},process.env.TOKEN_SECRET);
+               res.header("auth_token",token).send(token);
+        }
+    
+     }
+     catch(error){
+                res.status(400).send(error)
+     }
 
 
+    }
+// login verification
+    const verifylogin= async(req,res)=>{
+        const {token}=req.body
+        
+        try{
+            const verify=jwt.verify(token,process.env.TOKEN_SECRET)
+            if( verify){
+                   await user.findOne({email:verify.email})
+                  .then((data)=>{ 
+                    res.status(200).send({data})})
+            
+            }
+            
+        }
+        catch{
+                res.status(400).send('invalid token')
+        }
+    }
 
+
+module.exports.emaillogin=emaillogin;
 module.exports.emailExist = emailExist;
+module.exports.verifylogin=verifylogin;
