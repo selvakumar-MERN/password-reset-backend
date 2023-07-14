@@ -1,6 +1,7 @@
 const user = require('../model/users')
 const bcrypt = require('bcryptjs')
 const joi = require('joi')
+const jwt = require('jsonwebtoken')
 
 
 const usersSchema = joi.object({
