@@ -15,6 +15,9 @@ const con = mongoose.connection;
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.get('/',(req,res)=>{
+    res.status(200).send('Backend is connected')
+})
 app.listen(PORT, () => {
     console.log('server is running at', PORT)
 })
